@@ -1,0 +1,5 @@
+venv/
+.env
+linkedin_assistant.db
+__pycache__/
+*.pyc
