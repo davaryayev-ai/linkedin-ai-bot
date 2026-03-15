@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
 import os
+from aiogram.client.session.aiohttp import AiohttpSession
 from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -24,7 +24,15 @@ async def main():
     # Initialize Database
     init_db()
 
-    bot = Bot(token=bot_token)
+    # Setup Proxy for PythonAnywhere if needed
+    proxy_url = os.getenv("PROXY_URL")
+    if proxy_url:
+        logger.info(f"Using proxy: {proxy_url}")
+        session = AiohttpSession(proxy=proxy_url)
+        bot = Bot(token=bot_token, session=session)
+    else:
+        bot = Bot(token=bot_token)
+        
     dp = Dispatcher()
     
     # Register routers (handlers)

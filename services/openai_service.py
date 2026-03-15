@@ -1,9 +1,20 @@
 import openai
 import os
 import json
+import httpx
 import logging
 
 logger = logging.getLogger(__name__)
+
+def _get_client():
+    api_key = os.getenv("OPENAI_API_KEY")
+    proxy_url = os.getenv("PROXY_URL")
+    
+    http_client = None
+    if proxy_url:
+        http_client = httpx.AsyncClient(proxy=proxy_url)
+        
+    return openai.AsyncOpenAI(api_key=api_key, http_client=http_client)
 
 async def analyze_linkedin_post(post_text: str, stats: str) -> dict:
     """
@@ -15,7 +26,7 @@ async def analyze_linkedin_post(post_text: str, stats: str) -> dict:
         logger.error("OpenAI API key missing!")
         return {}
 
-    client = openai.AsyncOpenAI(api_key=api_key)
+    client = _get_client()
 
     system_prompt = (
         "Ты — топовый эксперт по продвижению в LinkedIn и копирайтер. "
@@ -65,8 +76,7 @@ async def generate_post_ideas(memory_template: str) -> str:
     Generates 3 engaging post ideas/topics based on the user's successful structure 
     and current AI/n8n meta.
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    client = openai.AsyncOpenAI(api_key=api_key)
+    client = _get_client()
     
     system_prompt = (
         "Ты — креативный продюсер для LinkedIn. Твоя ниша: AI интеграции, n8n, автоматизация бизнеса.\n"
@@ -100,8 +110,7 @@ async def generate_post_from_memory(topic: str, memory_template: str) -> str:
     """
     Generates a new LinkedIn post based on a successful template saved in memory.
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    client = openai.AsyncOpenAI(api_key=api_key)
+    client = _get_client()
     
     system_prompt = (
         "Ты — профессиональный ghostwriter для LinkedIn.\n"
@@ -131,8 +140,7 @@ async def generate_post_from_memory(topic: str, memory_template: str) -> str:
         return f"Произошла ошибка при генерации: {e}"
 
 async def summarize_news(raw_news_text: str) -> str:
-    api_key = os.getenv("OPENAI_API_KEY")
-    client = openai.AsyncOpenAI(api_key=api_key)
+    client = _get_client()
     
     system_prompt = (
         "Ты — AI-эксперт. Тебе дадут сырые новости про n8n и ИИ в бизнесе от поисковика.\n"
