@@ -1,7 +1,9 @@
 import asyncio
 import logging
 import os
+from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiohttp import web
 from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -59,7 +61,21 @@ async def main():
     scheduler.add_job(scheduled_news, 'cron', hour=10, minute=0)
     scheduler.start()
 
-    logger.info("Starting bot...")
+    logger.info("Starting bot and dummy web server...")
+    
+    # Dummy web server for Render port binding
+    async def dummy_handler(request):
+        return web.Response(text="Bot is awake and running!")
+        
+    app = web.Application()
+    app.router.add_get('/', dummy_handler)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    logger.info(f"Dummy web server started on port {port}")
+
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
