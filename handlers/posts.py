@@ -22,8 +22,12 @@ async def start_analysis(message: types.Message, state: FSMContext):
     )
     await state.set_state(AnalyzePost.waiting_for_text)
 
-@router.message(AnalyzePost.waiting_for_text, F.text)
+@router.message(AnalyzePost.waiting_for_text, F.text & ~F.text.startswith('/'))
 async def process_text(message: types.Message, state: FSMContext):
+    # Ignore if user clicks other menu buttons
+    if message.text in ["📊 Анализ поста", "✍️ Сгенерировать пост", "📰 Новости n8n & AI"]:
+        await state.clear()
+        return
     await state.update_data(post_text=message.text)
     
     await message.answer(
@@ -35,8 +39,12 @@ async def process_text(message: types.Message, state: FSMContext):
     )
     await state.set_state(AnalyzePost.waiting_for_stats)
 
-@router.message(AnalyzePost.waiting_for_stats, F.text)
+@router.message(AnalyzePost.waiting_for_stats, F.text & ~F.text.startswith('/'))
 async def process_stats(message: types.Message, state: FSMContext):
+    # Ignore if user clicks other menu buttons
+    if message.text in ["📊 Анализ поста", "✍️ Сгенерировать пост", "📰 Новости n8n & AI"]:
+        await state.clear()
+        return
     # Parse stats simply for now
     stats_text = message.text
     # We will refine parsing later, for now just store the string or parse basic ints

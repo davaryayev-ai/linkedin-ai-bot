@@ -45,8 +45,13 @@ async def start_generation(message: types.Message, state: FSMContext):
     )
     await state.set_state("waiting_for_generation_topic")
 
-@router.message(F.state == "waiting_for_generation_topic")
+@router.message(F.state == "waiting_for_generation_topic", F.text & ~F.text.startswith('/'))
 async def process_generation_topic(message: types.Message, state: FSMContext):
+    # Ignore if user clicks other menu buttons
+    if message.text in ["📊 Анализ поста", "✍️ Сгенерировать пост", "📰 Новости n8n & AI"]:
+        await state.clear()
+        return
+        
     topic = message.text
     data = await state.get_data()
     memory_json = data.get("memory")
