@@ -91,8 +91,9 @@ async def finish_analysis(message: types.Message, state: FSMContext):
 
     # Extract info
     hook = analysis_result.get("hook_analysis", "Нет данных").replace("**", "")
-    verdict = analysis_result.get("overall_verdict", "Нет данных").replace("**", "")
-    formatting = analysis_result.get("formatting", "Нет данных").replace("**", "")
+    formatting = analysis_result.get("formatting_and_readability", "Нет данных").replace("**", "")
+    algo_fit = analysis_result.get("algorithmic_fit", "Нет данных").replace("**", "")
+    verdict = analysis_result.get("deep_verdict", "Нет данных").replace("**", "")
     template = analysis_result.get("reusable_template", "Нет данных")
     
     # Save to Database
@@ -132,13 +133,14 @@ async def finish_analysis(message: types.Message, state: FSMContext):
 
     # Send result to user
     report = (
-        "🧠 <b>Анализ завершен!</b>\n\n"
-        f"🎯 <b>Хук (Как цепляет):</b>\n{hook}\n\n"
-        f"📝 <b>Форматирование:</b>\n{formatting}\n\n"
-        f"⚖️ <b>Вердикт:</b>\n{verdict}\n\n"
+        "🧠 <b>Глубокий алгоритмический анализ:</b>\n\n"
+        f"🎯 <b>Оценка Хука:</b>\n{hook}\n\n"
+        f"📝 <b>Форматирование & Читаемость:</b>\n{formatting}\n\n"
+        f"⚙️ <b>Как видит алгоритм LinkedIn:</b>\n{algo_fit}\n\n"
+        f"⚖️ <b>Глубокий вердикт и советы:</b>\n{verdict}\n\n"
         "〰️〰️〰️〰️〰️〰️〰️\n"
-        "💾 <i>Шаблон этого поста бережно сохранен в твою Память.</i>\n"
-        "👉 Теперь ты можешь сгенерировать классный новый пост по этой структуре через меню!"
+        "💾 <i>Уникальная структура (паттерн) поста извлечена и сохранена в твою Память.</i>\n"
+        "👉 Используй 'Сгенерировать пост', чтобы написать новый текст по этому паттерну."
     )
     
     await message.answer(report, parse_mode="HTML")
