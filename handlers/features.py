@@ -1,5 +1,5 @@
 from aiogram import Router, F, types
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from db.database import SessionLocal
 from db.models import UserMemory
@@ -45,7 +45,7 @@ async def start_generation(message: types.Message, state: FSMContext):
     )
     await state.set_state("waiting_for_generation_topic")
 
-@router.message(F.state == "waiting_for_generation_topic", F.text & ~F.text.startswith('/'))
+@router.message(StateFilter("waiting_for_generation_topic"), F.text & ~F.text.startswith('/'))
 async def process_generation_topic(message: types.Message, state: FSMContext):
     # Ignore if user clicks other menu buttons
     if message.text in ["📊 Анализ поста", "✍️ Сгенерировать пост", "📰 Новости n8n & AI"]:
